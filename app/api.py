@@ -46,7 +46,7 @@ def predict(data: InputArray, db: Session = Depends(get_db)):
 
     # Obtener hora actual en Lima y asignarla como hora_fin
     lima = timezone("America/Lima")
-    hora_actual = datetime.now(lima)
+    hora_actual = datetime.now(lima).replace(microsecond=0)
     evaluacion.hora_fin = hora_actual
 
     #Calcular duración en minutos

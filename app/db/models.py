@@ -41,6 +41,6 @@ class Evaluacion(Base):
     rasgos_tea = Column(String(2))  #'Si' o 'No' 
     nivel_confianza = Column(Numeric(3, 2))
 
-    hora_inicio = Column(DateTime(timezone=True), default=func.now())
+    hora_inicio = Column(DateTime(timezone=True), default=func.now()) # pylint: disable=E1102
     hora_fin = Column(DateTime(timezone=True))
     duracion_minutos = Column(Numeric(5, 2))
