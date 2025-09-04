@@ -22,7 +22,7 @@ def predecir(df):
     prob_clase_0 = float(prob_clase_0)
 
     # Aplicar umbral personalizado
-    umbral = 0.605
+    umbral = 0.580
     clase_predicha = int(prob_clase_1 >= umbral)
 
     # Convertir probabilidad a porcentaje (solo la de la clase predicha)
