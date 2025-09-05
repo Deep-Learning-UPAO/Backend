@@ -1,8 +1,6 @@
 from pathlib import Path
 import joblib
 import pandas as pd 
-from pandas.errors import ParserError
-
 
 class DataPreprocessor:
     def __init__(self, raw_values):
@@ -147,17 +145,7 @@ class DataPreprocessor:
 
         # Retornar como DataFrame para evitar warnings en el modelo
         return pd.DataFrame([valores], columns=ordered_vars)
-    
-    def get_duration_minutes(self) -> int:
-        try:
-            inicio = pd.to_datetime(self.data["Time_Start"]).to_pydatetime()
-            fin = pd.to_datetime(self.data["Time_End"]).to_pydatetime()
-            return int((fin - inicio).total_seconds() // 60)
-        except (ValueError, TypeError, ParserError) as e:
-            print(f"Error al calcular duración: {e}")
-            return 0
 
-    
     def get_ordered_column_dict(self):
         # Este orden corresponde al esquema de la tabla 'evaluaciones' en PostgreSQL
         return {
@@ -189,7 +177,7 @@ class DataPreprocessor:
             # rasgos_tea y nivel_confianza serán añadidos después de la predicción
             "hora_inicio": pd.to_datetime(self.data["Time_Start"]).to_pydatetime(),
             "hora_fin": pd.to_datetime(self.data["Time_End"]).to_pydatetime(),
-            "duracion_minutos": self.get_duration_minutes()
+            # duracion_minutos se calcula en app/api.py
         }
 
     def preparar_data_para_guardar(self, resultado_modelo) -> dict:

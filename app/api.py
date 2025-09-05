@@ -42,7 +42,6 @@ def predict(data: InputArray, db: Session = Depends(get_db)):
     data_dict = processor.preparar_data_para_guardar(resultado)
     data_dict = sanitize_numpy_types(data_dict)
 
-    # Crear objeto Evaluacion con hora_inicio por defecto (func.now())
     evaluacion = Evaluacion(**data_dict)
 
     # Obtener hora actual en Lima y asignarla como hora_fin
