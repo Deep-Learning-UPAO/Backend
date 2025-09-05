@@ -11,9 +11,10 @@ from app.model.predictor import predecir
 from pydantic import EmailStr
 from app.utils.email_config import conf  # configuración separada
 from datetime import datetime
-from pytz import timezone
+from zoneinfo import ZoneInfo
 import tempfile
 import shutil
+import math
 import os
 
 router = APIRouter()
@@ -45,14 +46,15 @@ def predict(data: InputArray, db: Session = Depends(get_db)):
     evaluacion = Evaluacion(**data_dict)
 
     # Obtener hora actual en Lima y asignarla como hora_fin
-    lima = timezone("America/Lima")
+    lima = ZoneInfo("America/Lima")
     hora_actual = datetime.now(lima).replace(microsecond=0)
     evaluacion.hora_fin = hora_actual
 
     #Calcular duración en minutos
     if evaluacion.hora_inicio:
         diferencia = hora_actual - evaluacion.hora_inicio
-        evaluacion.duracion_minutos = round(diferencia.total_seconds() / 60, 2)
+        minutos = diferencia.total_seconds() / 60
+        evaluacion.duracion_minutos = math.ceil(minutos)
 
     # Guardar en BD
     db.add(evaluacion)

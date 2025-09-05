@@ -1,24 +1,22 @@
-from sqlalchemy import Column, Integer, SmallInteger, String, Numeric, CHAR
-from sqlalchemy import DateTime
+from sqlalchemy import (
+    Column, Integer, SmallInteger, String, Numeric, CHAR, Boolean, ForeignKey,
+    DateTime, text
+)
 from sqlalchemy.sql import func
+from sqlalchemy.dialects.postgresql import CITEXT  # para contacto_email
+from datetime import datetime, timezone
 from .database import Base
 
 class Evaluacion(Base):
-    __tablename__ = "evaluaciones"
+    __tablename__ = "evaluacion"
 
     id = Column(Integer, primary_key=True, index=True)
     edad = Column(SmallInteger)
     sexo = Column(CHAR(1))
 
-    a1 = Column(SmallInteger)
-    a2 = Column(SmallInteger)
-    a3 = Column(SmallInteger)
-    a4 = Column(SmallInteger)
-    a5 = Column(SmallInteger)
-    a6 = Column(SmallInteger)
-    a7 = Column(SmallInteger)
-    a8 = Column(SmallInteger)
-    a9 = Column(SmallInteger)
+    a1 = Column(SmallInteger); a2 = Column(SmallInteger); a3 = Column(SmallInteger)
+    a4 = Column(SmallInteger); a5 = Column(SmallInteger); a6 = Column(SmallInteger)
+    a7 = Column(SmallInteger); a8 = Column(SmallInteger); a9 = Column(SmallInteger)
     a10 = Column(SmallInteger)
 
     qchat_resultado = Column(SmallInteger)
@@ -37,10 +35,14 @@ class Evaluacion(Base):
     porc_deficiencia_comunicativa = Column(Numeric(3, 2))
 
     perfil_clinico = Column(String(30))
-
     rasgos_tea = Column(String(2))  #'Si' o 'No' 
     nivel_confianza = Column(Numeric(3, 2))
 
-    hora_inicio = Column(DateTime(timezone=True), default=func.now()) # pylint: disable=E1102
-    hora_fin = Column(DateTime(timezone=True))
-    duracion_minutos = Column(Numeric(5, 2))
+    hora_inicio = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc).replace(microsecond=0),
+        nullable=False
+    )
+    hora_fin = Column(DateTime(timezone=True), nullable=False)
+    duracion_minutos = Column(SmallInteger, nullable=False)
+
