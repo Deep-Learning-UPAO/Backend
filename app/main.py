@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from app.db.init_db import init_empresa
 from app import api
 from app.db.models import Base
 from app.db.database import engine
@@ -11,6 +12,9 @@ import os
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Llamada para crear la empresa por defecto al iniciar la app
+init_empresa()
 
 # CORS
 app.add_middleware(
