@@ -65,10 +65,10 @@ class Evaluacion(Base):
         server_default=text("date_trunc('second', now())"),
         nullable=False,
     )
-    #AÑADIR CONSTRAINTS, VALIDADORES INDEX
+    #AÑADIR CONSTRAINTS, VALIDADORES, VISTAS ENMASCARADAS E INDEX
 
  # Contexto para hashing de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 class Empresa(Base):
     __tablename__ = "empresa"
@@ -103,6 +103,15 @@ class Empresa(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+
+    # ORM: relación 1:N con terapia_empresa
+    terapias = relationship(
+        "TerapiaEmpresa",
+        back_populates="empresa",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
 
     # ---- Constraints a nivel BD (regex de teléfono y correo)
     __table_args__ = (
@@ -139,8 +148,74 @@ class Empresa(Base):
     def _is_valid_email(email: str) -> bool:
         return bool(re.match(r'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$', email, re.IGNORECASE))
 
-    
+
+PERFILES_TEA = ("comunicativo", "interactivo-social", "mixto")
+
+class TerapiaEmpresa(Base):
+    __tablename__ = "terapia_empresa"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(
+        Integer,
+        ForeignKey("empresa.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    nombre = Column(Text, nullable=False)
+    descripcion = Column(Text, nullable=True)
+    perfil_tea_asociado = Column(String(30), nullable=False)  # validado por CHECK
+
+    is_active = Column(Boolean, nullable=False, server_default=text("true"))
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=text("date_trunc('second', now())"),
+        nullable=False,
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=text("date_trunc('second', now())"),
+        server_onupdate=text("date_trunc('second', now())"),
+        onupdate=func.now(), # pylint: disable=E1102
+        nullable=False,
+    )
+
+    # Relación inversa
+    empresa = relationship("Empresa", back_populates="terapias", lazy="joined")
+
+    __table_args__ = (
+        # Único por empresa
+        UniqueConstraint("empresa_id", "nombre", name="uq_terapia_empresa_nombre"),
+
+        # CHECK del perfil
+        CheckConstraint(
+            f"perfil_tea_asociado IN {PERFILES_TEA}",
+            name="chk_terapia_empresa_perfil",
+        ),
+
+        # Índices
+        # Nota: para incluir DESC en created_at usamos text(); también dejamos un índice por perfil
+        Index("idx_terapia_empresa", "empresa_id", text("created_at DESC")),
+        Index("idx_terapia_empresa_perfil", "empresa_id", "perfil_tea_asociado"),
+    )
+
+    # -------- Validadores Python (mensajes claros)
+    @validates("nombre")
+    def validate_nombre(self, key, nombre):
+        n = (nombre or "").strip()
+        if not n:
+            raise ValueError("El nombre de la terapia no puede estar vacío.")
+        return n
+
+    @validates("perfil_tea_asociado")
+    def validate_perfil(self, key, perfil):
+        if perfil not in PERFILES_TEA:
+            raise ValueError(f"perfil_tea_asociado debe ser uno de {PERFILES_TEA}.")
+        return perfil
+
+
 RolUsuarioEnum = Enum("ADMIN", "OPERADOR", name="rol_usuario")  # Enum en PostgreSQL
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Usuario(Base):
     __tablename__ = "usuario"
