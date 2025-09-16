@@ -214,7 +214,7 @@ class TerapiaEmpresa(Base):
         return perfil
 
 
-RolUsuarioEnum = Enum("ADMIN", "OPERADOR", name="rol_usuario")  # Enum en PostgreSQL
+RolUsuarioEnum = Enum("ADMIN", "JEFE_TERAPEUTA", "TERAPEUTA", name="rol_usuario")  # Enum en PostgreSQL
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Usuario(Base):
