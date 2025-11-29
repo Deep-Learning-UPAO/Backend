@@ -19,7 +19,11 @@ init_empresa()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # O lista de dominios permitidos
+    allow_origins=[    
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "https://octopus-app-wuqzz.ondigitalocean.app",  # opcional
+                ],  # O lista de dominios permitidos
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
